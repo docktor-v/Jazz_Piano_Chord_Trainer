@@ -1,6 +1,13 @@
 package org.docktor_v;
 
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+
 import javafx.animation.FillTransition;
+
+import java.util.Scanner;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,55 +37,43 @@ import static javafx.scene.layout.HBox.setMargin;
  * JavaFX App
  */
 public class App extends Application {
-    private List<Note> notes = Arrays.asList(
-            new Note("C", KeyCode.A, 60),
-            new Note("C#", KeyCode.W, 61),
-            new Note("D", KeyCode.S, 62),
-            new Note("D#", KeyCode.E, 63),
-            new Note("E", KeyCode.D, 64),
-            new Note("F", KeyCode.F, 65),
-            new Note("F#", KeyCode.T, 66),
-            new Note("G", KeyCode.G, 67),
-            new Note("G#", KeyCode.Y, 68),
-            new Note("A", KeyCode.H, 69),
-            new Note("A#", KeyCode.U, 70),
-            new Note("B", KeyCode.J, 71),
-            new Note("C", KeyCode.K, 72)
+    private List<Note> notes = new ArrayList<>();
 
-    );
 
     private HBox keyboard = new HBox(15);
     private VBox root = new VBox();
     private GridPane controllerPane = new GridPane();
+    private Button fwdButton = new Button("Forward");
     private MidiChannel channel;
 
     @Override
     public void start(Stage stage) {
-        //controllerPane.setPrefSize(1000, 500);
-        controllerPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-                CornerRadii.EMPTY, new BorderWidths(5))));
+        File file = new File("noteFile.csv");
+        try (Scanner scanner = new Scanner(Paths.get("noteFile.csv"))) {
 
-controllerPane.setHgap(10);
-        //controllerPane.setGridLinesVisible(true);
-        int height = 5;
-        int width = 20;
-        controllerPane.setPadding(new Insets(20,20,20,20));
-        controllerPane.add(new Button("Backward"), 0,0);
-        controllerPane.add(new Button("Reset"), 1,0);
-        controllerPane.add(new Button("Forward"), 2,0);
-//        for (int i = 0; i < width; i++) {
-//            for (int j = 0; j < height; j++) {
-//                controllerPane.add(new Button(), i, j);
-//            }
-//        }
-        controllerPane.setAlignment(Pos.CENTER);
+            while (scanner.hasNextLine()) {
+                String row = scanner.nextLine();
+                String[] rowParts = row.split(",");
+                if (rowParts.length == 3) {
+                    System.out.println(rowParts[0]+rowParts[1]+rowParts[2]);
+                     notes.add(new Note(rowParts[0], KeyCode.getKeyCode(rowParts[1]),5));
+                } else {System.out.println(rowParts[0]+rowParts[1]);
+//                    notes.add(new Note(rowParts[0], KeyCode.PRINTSCREEN, Integer.valueOf(rowParts[2])));
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Faled to read file");
+        }
+        System.out.println(notes.size());
         root.setPrefSize(600, 500);
-        root.getChildren().add(createContent());
-        root.getChildren().add(controllerPane);
-
+        root.getChildren().addAll(createKeyboardContent(), createControlContent());
 
         Scene scene = new Scene(root);
         scene.setOnKeyPressed(e -> onKeyPress(e.getCode()));
+        fwdButton.setOnAction((event) -> {
+            playNoteCombination(60, 65);
+        });
+
         stage.setScene(scene);
         stage.show();
     }
@@ -116,11 +111,11 @@ controllerPane.setHgap(10);
                 });
     }
 
-    private void playNoteCombination(KeyCode key1, KeyCode key2) {
+    private void playNoteCombination(int keyNumber1, int keyNumber2) {
         keyboard.getChildren()
                 .stream()
                 .map(view -> (NoteView) view)
-                .filter(view -> view.note.key.equals(key1))
+                .filter(view -> view.note.number == keyNumber1 || view.note.number == keyNumber2)
                 .forEach(view -> {
                     FillTransition ft = new FillTransition(
                             Duration.seconds(.15),
@@ -132,6 +127,7 @@ controllerPane.setHgap(10);
                     ft.setAutoReverse(true);
                     ft.play();
                     channel.noteOn(view.note.number, 90);
+
                 });
     }
 
@@ -157,7 +153,21 @@ controllerPane.setHgap(10);
         }
     }
 
-    private Parent createContent() {
+    private Parent createControlContent() {
+        controllerPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, new BorderWidths(5))));
+        controllerPane.setHgap(10);
+        controllerPane.setMinSize(400, 200);
+        controllerPane.setPadding(new Insets(20, 20, 20, 20));
+        controllerPane.add(new Button("Backward"), 0, 0);
+        controllerPane.add(new Button("Reset"), 1, 0);
+        controllerPane.add(fwdButton, 2, 0);
+        controllerPane.setAlignment(Pos.CENTER);
+        return controllerPane;
+
+    }
+
+    private Parent createKeyboardContent() {
         loadChannel();
         keyboard.setPrefSize(600, 150);
         keyboard.setSpacing(0);
@@ -197,7 +207,12 @@ controllerPane.setHgap(10);
             this.name = name;
             this.key = key;
             this.number = number;
+        }
 
+        Note(String name, int number) {
+            this.name = name;
+            this.key = KeyCode.PRINTSCREEN;
+            this.number = number;
         }
     }
 
