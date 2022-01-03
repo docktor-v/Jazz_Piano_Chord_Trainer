@@ -1,0 +1,11 @@
+Added black keys
+Added click to play notes
+Extended keyboard from one octave to three.
+Allowed keyboard to be played with mouse clicked by:
+    1. Converting the method "onKeyPressed" to "playKey" and its parameters changed from a KeyCode to just the key number (int). This meant that in the main start method, I had to get the note number from the keycode after the
+       keycode event. This is the expression:
+       scene.setOnKeyPressed(e ->playKey(notes.stream().filter(s->s.key.equals(e.getCode())).findFirst().orElse(null).number));
+       The e.getCode is the actual listener from the keyboard. Initially, Java would not allow me to write this expression without using an Optional object. This is because, when a key is pressed, it may return an actual object
+       of class Note, or it may not return anything at all. An Optional object is an object which may or may not contain a non-null value.
+       Since I can't assign every key on the MIDI keyboard to an actual key on the keyboard, I didn't want anything to happen if a key was pressed that was not assigned to a key on the MIDI, so instead, I just
+       added the orElse(null), and the .number returns the number to the playKey method.

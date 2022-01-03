@@ -2,11 +2,9 @@ package org.docktor_v;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.*;
 
 import javafx.animation.FillTransition;
-
-import java.util.Scanner;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -27,8 +25,7 @@ import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
-import java.util.Arrays;
-import java.util.List;
+import java.util.stream.Collectors;
 
 import static javafx.scene.layout.HBox.setMargin;
 
@@ -55,11 +52,12 @@ public class App extends Application {
                 String row = scanner.nextLine();
                 String[] rowParts = row.split(",");
                 if (rowParts.length == 3) {
-                    System.out.println(rowParts[0]+rowParts[1]+rowParts[2]);
-                     notes.add(new Note(rowParts[0], KeyCode.getKeyCode(rowParts[1]),5));
-                } else {System.out.println(rowParts[0]+rowParts[1]);
-//                    notes.add(new Note(rowParts[0], KeyCode.PRINTSCREEN, Integer.valueOf(rowParts[2])));
+                    System.out.println(rowParts[0] + rowParts[1] + rowParts[2] + " " + KeyCode.getKeyCode("F"));
+                    notes.add(new Note(rowParts[0].trim(), KeyCode.getKeyCode(rowParts[1].trim()), Integer.valueOf(rowParts[2].trim())));
+                } else {
+                    notes.add(new Note(rowParts[0].trim(), KeyCode.PRINTSCREEN, Integer.valueOf(rowParts[1].trim())));
                 }
+
             }
         } catch (Exception e) {
             System.out.println("Faled to read file");
@@ -69,20 +67,23 @@ public class App extends Application {
         root.getChildren().addAll(createKeyboardContent(), createControlContent());
 
         Scene scene = new Scene(root);
-        scene.setOnKeyPressed(e -> onKeyPress(e.getCode()));
-        fwdButton.setOnAction((event) -> {
-            playNoteCombination(60, 65);
-        });
+        scene.setOnKeyPressed(e ->playKey(notes.stream().filter(s->s.key.equals(e.getCode())).findFirst().orElse(null).number));
+                fwdButton.setOnAction((event) -> {
+                    playNoteCombination(60, 65);
+                });
 
         stage.setScene(scene);
         stage.show();
     }
 
-    private void onKeyPress(KeyCode key) {
+    public void test(KeyCode key) {
+    }
+
+    public void playKey(int key) {      //change this to work when it is an int
         keyboard.getChildren()
                 .stream()
                 .map(view -> (NoteView) view)
-                .filter(view -> view.note.key.equals(key))
+                .filter(view -> view.note.number == key)
                 .forEach(view -> {
                     if (!view.note.name.contains("#")) {
                         FillTransition ft = new FillTransition(
@@ -145,6 +146,7 @@ public class App extends Application {
                 bg.setHeight(180);
                 bg.setWidth(30);
                 letter.setFill(Color.WHITE);
+
             }
             bg.setStroke(Color.BLACK);
             getChildren().addAll(bg, letter);
@@ -159,7 +161,6 @@ public class App extends Application {
         controllerPane.setHgap(10);
         controllerPane.setMinSize(400, 200);
         controllerPane.setPadding(new Insets(20, 20, 20, 20));
-        controllerPane.add(new Button("Backward"), 0, 0);
         controllerPane.add(new Button("Reset"), 1, 0);
         controllerPane.add(fwdButton, 2, 0);
         controllerPane.setAlignment(Pos.CENTER);
@@ -169,12 +170,19 @@ public class App extends Application {
 
     private Parent createKeyboardContent() {
         loadChannel();
-        keyboard.setPrefSize(600, 150);
+        //   keyboard.setPrefSize(600, 150);
+        HBox.setHgrow(keyboard, Priority.ALWAYS);
+
         keyboard.setSpacing(0);
         notes.forEach(note -> {
             NoteView view = new NoteView(note);
+            view.bg.setOnMouseClicked((event) -> {
+                playKey(view.note.number);
+            });
             keyboard.getChildren().add(view);
         });
+
+
         keyboard.getChildren()
                 .stream()
                 .map(view -> (NoteView) view)
