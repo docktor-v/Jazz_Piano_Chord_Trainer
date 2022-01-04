@@ -25,6 +25,9 @@ import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static javafx.scene.layout.HBox.setMargin;
@@ -52,7 +55,6 @@ public class App extends Application {
                 String row = scanner.nextLine();
                 String[] rowParts = row.split(",");
                 if (rowParts.length == 3) {
-                    System.out.println(rowParts[0] + rowParts[1] + rowParts[2] + " " + KeyCode.getKeyCode("F"));
                     notes.add(new Note(rowParts[0].trim(), KeyCode.getKeyCode(rowParts[1].trim()), Integer.valueOf(rowParts[2].trim())));
                 } else {
                     notes.add(new Note(rowParts[0].trim(), KeyCode.PRINTSCREEN, Integer.valueOf(rowParts[1].trim())));
@@ -62,18 +64,26 @@ public class App extends Application {
         } catch (Exception e) {
             System.out.println("Faled to read file");
         }
-        System.out.println(notes.size());
+
         root.setPrefSize(600, 500);
         root.getChildren().addAll(createKeyboardContent(), createControlContent());
 
         Scene scene = new Scene(root);
-        scene.setOnKeyPressed(e ->playKey(notes.stream().filter(s->s.key.equals(e.getCode())).findFirst().orElse(null).number));
-                fwdButton.setOnAction((event) -> {
-                    playNoteCombination(60, 65);
-                });
+        scene.setOnKeyPressed(e -> playKey(notes.stream().filter(s -> s.key.equals(e.getCode())).findFirst().orElse(null).number));
+
+
+        fwdButton.setOnAction((event) -> {
+            moveTrainerForward();
+        });
 
         stage.setScene(scene);
         stage.show();
+    }
+
+    public void moveTrainerForward() {
+        playNoteCombination(108, 101);
+        playKey(98);
+
     }
 
     public void test(KeyCode key) {
@@ -134,7 +144,7 @@ public class App extends Application {
 
     private static class NoteView extends StackPane {
         private Note note;
-        private Rectangle bg = new Rectangle(50, 200, Color.WHITE);
+        private Rectangle bg = new Rectangle(35, 200, Color.WHITE);
         private Text letter;
 
         NoteView(Note note) {
@@ -144,7 +154,7 @@ public class App extends Application {
             if (note.name.contains("#")) {
                 bg.setFill(Color.BLACK);
                 bg.setHeight(180);
-                bg.setWidth(30);
+                bg.setWidth(25);
                 letter.setFill(Color.WHITE);
 
             }
