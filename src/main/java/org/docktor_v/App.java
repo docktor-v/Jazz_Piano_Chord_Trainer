@@ -30,6 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static javafx.scene.layout.HBox.setMargin;
 
 
@@ -39,7 +40,9 @@ import static javafx.scene.layout.HBox.setMargin;
 public class App extends Application {
     private List<Note> notes = new ArrayList<>();
 
-
+    int third = 108;
+    int seventh = 101;
+    int tonic = 98;
     private HBox keyboard = new HBox(15);
     private VBox root = new VBox();
     private GridPane controllerPane = new GridPane();
@@ -69,27 +72,40 @@ public class App extends Application {
         root.getChildren().addAll(createKeyboardContent(), createControlContent());
 
         Scene scene = new Scene(root);
-        scene.setOnKeyPressed(e -> playKey(notes.stream().filter(s -> s.key.equals(e.getCode())).findFirst().orElse(null).number));
+        List<Integer> noteList = new ArrayList<>();
+        scene.setOnKeyPressed(e -> {
+            ArrayList<Note> playedNotes = notes.stream().filter(s -> s.key.equals(e.getCode())).collect(Collectors.toCollection(ArrayList::new));
+            playedNotes.forEach(s -> playKey(s.number));
+        });
+
+        //.findFirst().ifPresent(App:test())));
+        //orElse(null).number));
 
 
-        fwdButton.setOnAction((event) -> {
-            moveTrainerForward();
+        fwdButton.setOnAction((event)
+                -> {
+            moveTrainerForward(third, seventh, tonic);
+            third--;
+            seventh--;
         });
 
         stage.setScene(scene);
         stage.show();
     }
 
-    public void moveTrainerForward() {
-        playNoteCombination(108, 101);
+    public void test() {
+
+    }
+
+    public void moveTrainerForward(int third, int seventh, int root) {
+        playNoteCombination(third, seventh, root);
         playKey(98);
 
     }
 
-    public void test(KeyCode key) {
-    }
 
-    public void playKey(int key) {      //change this to work when it is an int
+    public void playKey(int key) {
+
         keyboard.getChildren()
                 .stream()
                 .map(view -> (NoteView) view)
@@ -105,7 +121,9 @@ public class App extends Application {
                         ft.setCycleCount(2);
                         ft.setAutoReverse(true);
                         ft.play();
+
                         channel.noteOn(view.note.number, 90);
+                        view.bg.setFill(Color.BLACK);
                     } else {
                         FillTransition ft = new FillTransition(
                                 Duration.seconds(.15),
@@ -116,30 +134,51 @@ public class App extends Application {
                         ft.setCycleCount(2);
                         ft.setAutoReverse(true);
                         ft.play();
+
+
                         channel.noteOn(view.note.number, 90);
 
                     }
                 });
     }
 
-    private void playNoteCombination(int keyNumber1, int keyNumber2) {
+    private void playNoteCombination(int keyNumber1, int keyNumber2, int keyNumber3) {
         keyboard.getChildren()
                 .stream()
                 .map(view -> (NoteView) view)
-                .filter(view -> view.note.number == keyNumber1 || view.note.number == keyNumber2)
+                .filter(view -> view.note.number == keyNumber1 || view.note.number == keyNumber2 || view.note.number == keyNumber3)
                 .forEach(view -> {
-                    FillTransition ft = new FillTransition(
-                            Duration.seconds(.15),
-                            view.bg,
-                            Color.WHITE,
-                            Color.BLACK
-                    );
-                    ft.setCycleCount(2);
-                    ft.setAutoReverse(true);
-                    ft.play();
-                    channel.noteOn(view.note.number, 90);
+                    if (!view.note.name.contains("#")) {
+                        FillTransition ft = new FillTransition(
+                                Duration.seconds(.15),
+                                view.bg,
+                                Color.WHITE,
+                                Color.BLACK
+                        );
+                        ft.setCycleCount(2);
+                        ft.setAutoReverse(true);
+                        ft.play();
+
+                        channel.noteOn(view.note.number, 90);
+                        view.bg.setFill(Color.BLACK);
+                    } else {
+                        FillTransition ft = new FillTransition(
+                                Duration.seconds(.15),
+                                view.bg,
+                                Color.BLACK,
+                                Color.WHITE
+                        );
+                        ft.setCycleCount(2);
+                        ft.setAutoReverse(true);
+                        ft.play();
+
+
+                        channel.noteOn(view.note.number, 90);
+
+                    }
 
                 });
+
     }
 
     private static class NoteView extends StackPane {
