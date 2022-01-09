@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -18,6 +19,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -29,6 +31,7 @@ import javax.sound.midi.Synthesizer;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -41,7 +44,7 @@ import static javafx.scene.layout.HBox.setMargin;
  */
 public class App extends Application {
     private List<Note> notes = new ArrayList<>();
-
+    private HashMap<Integer, Note> noteMap = new HashMap<>();
     private int third = 108;
     private int seventh = 101;
     private int tonic = 98;
@@ -55,9 +58,24 @@ public class App extends Application {
     TextArea monitor1 = new TextArea();
     TextArea monitor2 = new TextArea();
     TextArea monitor3 = new TextArea();
-    Image image = new Image("File:arrow.jpg");
-    ImageView pic = new ImageView(image);
-    Label chordType = new Label();
+    Image arrowImage = new Image("File:arrow.jpg");
+    ImageView arrowImageView1 = new ImageView(arrowImage);
+    ImageView arrowImageView2 = new ImageView(arrowImage);
+    ImageView arrowImageView3 = new ImageView(arrowImage);
+    Image handsImage = new Image("File:Hands.jpg");
+    ImageView handsImageView = new ImageView(handsImage);
+    Image notesImage = new Image("File:notes.jpg");
+    ImageView notesImageView = new ImageView(notesImage);
+
+    Label chord1 = new Label();
+    Label chord2 = new Label();
+    Label chord3 = new Label();
+
+    Label introduction = new Label();
+    Label introductionHeader = new Label();
+    Label fingeringNote = new Label();
+    Label getFingeringNoteHeader = new Label();
+    Label instructions = new Label();
 
     @Override
     public void start(Stage stage) {
@@ -69,8 +87,10 @@ public class App extends Application {
                 String[] rowParts = row.split(",");
                 if (rowParts.length == 3) {
                     notes.add(new Note(rowParts[0].trim(), KeyCode.getKeyCode(rowParts[1].trim()), Integer.valueOf(rowParts[2].trim())));
+                    noteMap.put(Integer.valueOf(rowParts[2].trim()), notes.get(notes.size() - 1));
                 } else {
                     notes.add(new Note(rowParts[0].trim(), KeyCode.PRINTSCREEN, Integer.valueOf(rowParts[1].trim())));
+                    noteMap.put(Integer.valueOf(rowParts[1].trim()), notes.get(notes.size() - 1));
                 }
 
             }
@@ -95,25 +115,41 @@ public class App extends Application {
             third = 101; //D
             seventh = 108; //C
             tonic = 98; //F
+            monitor1.clear();
+            monitor2.clear();
+            monitor3.clear();
+            arrowImageView1.setVisible(false);
+            arrowImageView2.setVisible(false);
+            arrowImageView3.setVisible(false);
         }));
 
+        arrowImageView1.setVisible(false);
+        arrowImageView2.setVisible(false);
+        arrowImageView3.setVisible(false);
         fwdButton.setOnAction((event)
                 -> {
             if (buttonPressCounter == 1) {
+                arrowImageView1.setVisible(true);
+                arrowImageView2.setVisible(false);
+                arrowImageView3.setVisible(false);
                 monitor1.appendText("Play minor seventh, then move finger #five down one semitone");
-                chordType.setText("Minor Seventh");
+                chord1.setText(noteMap.get(tonic).name + " Minor Seventh (ii)");
                 playNoteCombination(third, seventh, tonic);
                 seventh--;
                 tonic = tonic - 7;
                 buttonPressCounter++;
             } else if (buttonPressCounter == 2) {
+                arrowImageView2.setVisible(true);
                 monitor2.appendText("Dominant seventh");
+                chord2.setText(noteMap.get(tonic).name + " Dominant Seventh (V)");
                 playNoteCombination(third, seventh, tonic);
                 third--;
                 tonic = tonic + 5;
                 buttonPressCounter++;
             } else if (buttonPressCounter == 3) {
+                arrowImageView3.setVisible(true);
                 monitor3.appendText("Major seventh");
+                chord3.setText(noteMap.get(tonic).name + " Major Seventh (I)");
                 playNoteCombination(third, seventh, tonic);
                 buttonPressCounter++;
 
@@ -124,6 +160,7 @@ public class App extends Application {
                 //do nothing.
             }
         });
+        stage.setTitle("Jazz Piano Chord Trainer");
         stage.setScene(scene);
         stage.show();
     }
@@ -220,50 +257,84 @@ public class App extends Application {
     }
 
     private Parent createControlContent() {
+        controllerPane.setStyle("-fx-background-color: WHITE;");
 
         controllerPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
                 CornerRadii.EMPTY, new BorderWidths(5))));
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 16; i++) {
             ColumnConstraints column = new ColumnConstraints(100);
             controllerPane.getColumnConstraints().add(column);
         }
-        for (int i = 0; i < 8; i++) {
-            RowConstraints row = new RowConstraints(35);
+        for (int i = 0; i < 12; i++) {
+            RowConstraints row = new RowConstraints(18);
             controllerPane.getRowConstraints().add(row);
         }
-        controllerPane.setHgap(5);
+
+        introduction.setText("This application will help you learn to play the standard jazz chord \nprogression, ii V I, in every key, from memory, by teaching the pattern \nbehind it. " +
+                "We play across the circle of fourths, starting at C Major.\nThe first three chords are listed above in the three bars of sheet music. \nThe next root chord will be F, so the " +
+                "next progression will be\nGm7, C7, Fmaj7. When stepping through the trainer, it will play\nthe current root twice before moving to the next root.");
+        introductionHeader.setText("Intoduction:");
+        fingeringNote.setText("For simplicities sake, use fingering\n1 and 5 in the right hand");
+        fingeringNote.setFont(Font.font("Arial"));
+        introductionHeader.setFont(Font.font("Arial", 30));
+        introduction.setFont(Font.font("Arial"));
+
         controllerPane.setMinSize(400, 350);
-        controllerPane.setVgap(5);
+        controllerPane.setVgap(7);
         controllerPane.setHgap(5);
         monitor1.setWrapText(true);
         monitor2.setWrapText(true);
         monitor3.setWrapText(true);
         GridPane.setRowSpan(monitor1, 2);
-        GridPane.setColumnSpan(monitor1, 3);
+        GridPane.setColumnSpan(monitor1, 5);
         GridPane.setRowSpan(monitor2, 2);
-        GridPane.setColumnSpan(monitor2, 3);
+        GridPane.setColumnSpan(monitor2, 5);
         GridPane.setRowSpan(monitor3, 2);
-        GridPane.setColumnSpan(monitor3, 3);
+        GridPane.setColumnSpan(monitor3, 5);
         monitor1.setEditable(false);
+        monitor2.setEditable(false);
+        monitor3.setEditable(false);
 
-        chordType.setText("Chord types will show here");
+        rstButton.setPrefWidth(80);
+        fwdButton.setPrefWidth(80);
 
-        controllerPane.setGridLinesVisible(true);
+       //    controllerPane.setGridLinesVisible(true);
 
         //i is x axis i1 is Y axis  page.add(Node, colIndex, rowIndex, colSpan, rowSpan):
-        controllerPane.add(rstButton, 0, 0);
-        controllerPane.add(fwdButton, 1, 0);
-        controllerPane.add(chordType, 2, 0);
+
+        controllerPane.add(rstButton, 3, 2);
+        controllerPane.add(fwdButton, 3, 0);
+        controllerPane.add(new Label("Chord Type:"), 4, 0, 2, 1);
+        controllerPane.add(chord1, 4, 1, 2, 1);
+        controllerPane.add(chord2, 4, 2, 2, 1);
+        controllerPane.add(chord3, 4, 3, 2, 1);
 
         controllerPane.add(monitor1, 6, 0);
         controllerPane.add(monitor2, 6, 3);
         controllerPane.add(monitor3, 6, 6);
 
-        pic.setFitHeight(30);
-        pic.setFitWidth(50);
-        controllerPane.add(pic, 5, 0);
-        GridPane.setHalignment(pic, HPos.RIGHT);
-        pic.setVisible(false);
+        arrowImageView1.setFitHeight(30);
+        arrowImageView1.setFitWidth(50);
+        arrowImageView2.setFitHeight(30);
+        arrowImageView2.setFitWidth(50);
+        arrowImageView3.setFitHeight(30);
+        arrowImageView3.setFitWidth(50);
+        notesImageView.setFitWidth(250);
+        notesImageView.setFitHeight(100);
+        controllerPane.add(arrowImageView1, 5, 0);
+        controllerPane.add(arrowImageView2, 5, 3);
+        controllerPane.add(arrowImageView3, 5, 6);
+        controllerPane.add(handsImageView, 1, 4);
+        controllerPane.add(notesImageView, 12, 6);
+        controllerPane.add(introduction, 12, 1, 4, 6);
+        controllerPane.add(introductionHeader, 12, 0,2,1);
+        controllerPane.add(fingeringNote,1,9,2,2);
+        GridPane.setHalignment(arrowImageView1, HPos.RIGHT);
+        GridPane.setHalignment(arrowImageView2, HPos.RIGHT);
+        GridPane.setHalignment(arrowImageView3, HPos.RIGHT);
+        GridPane.setHalignment(rstButton, HPos.CENTER);
+        GridPane.setHalignment(fwdButton, HPos.CENTER);
+        GridPane.setValignment(notesImageView, VPos.TOP);
         controllerPane.setAlignment(Pos.CENTER);
         return controllerPane;
     }
@@ -319,6 +390,11 @@ public class App extends Application {
             this.name = name;
             this.key = KeyCode.PRINTSCREEN;
             this.number = number;
+        }
+
+        public String getName() {
+            return name;
+
         }
     }
 
