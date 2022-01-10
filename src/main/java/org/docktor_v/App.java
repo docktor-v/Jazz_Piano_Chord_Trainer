@@ -55,6 +55,7 @@ public class App extends Application {
     private Button rstButton = new Button("Reset");
     private MidiChannel channel;
     private int buttonPressCounter = 1;
+    private boolean option = true;
     TextArea monitor1 = new TextArea();
     TextArea monitor2 = new TextArea();
     TextArea monitor3 = new TextArea();
@@ -118,6 +119,7 @@ public class App extends Application {
             monitor1.clear();
             monitor2.clear();
             monitor3.clear();
+            option=true;
             arrowImageView1.setVisible(false);
             arrowImageView2.setVisible(false);
             arrowImageView3.setVisible(false);
@@ -126,36 +128,72 @@ public class App extends Application {
         arrowImageView1.setVisible(false);
         arrowImageView2.setVisible(false);
         arrowImageView3.setVisible(false);
+        //option == true means you are on the spread out version
         fwdButton.setOnAction((event)
                 -> {
             if (buttonPressCounter == 1) {
                 arrowImageView1.setVisible(true);
                 arrowImageView2.setVisible(false);
                 arrowImageView3.setVisible(false);
-                monitor1.appendText("Play minor seventh, then move finger #five down one semitone");
-                chord1.setText(noteMap.get(tonic).name + " Minor Seventh (ii)");
                 playNoteCombination(third, seventh, tonic);
-                seventh--;
-                tonic = tonic - 7;
+                if (option) {
+                    monitor1.setText("The Minor Seventh was just played. Next, move finger# 5 down one semitone. Pressing forward will play the next chord (Dominant Seventh.)");
+                    third--;
+                    tonic = tonic - 7;
+                } else {
+                    monitor1.setText("false The Minor Seventh was just played. Next, move finger# 1 down one semitone. Pressing forward will play the next chord (Dominant Seventh.)");
+                    seventh--;
+                    tonic = tonic+5;
+                }
+                chord1.setText(noteMap.get(tonic).name + " Minor Seventh (ii)");
+
+
+
                 buttonPressCounter++;
             } else if (buttonPressCounter == 2) {
                 arrowImageView2.setVisible(true);
-                monitor2.appendText("Dominant seventh");
-                chord2.setText(noteMap.get(tonic).name + " Dominant Seventh (V)");
                 playNoteCombination(third, seventh, tonic);
-                third--;
-                tonic = tonic + 5;
+                if (option) {
+                    monitor2.setText("The Dominant Seventh was just played. Now, move finger #1 down one semitone. Press forward to play the next chord.");
+                    seventh--;
+                    tonic=tonic+5;
+                } else {
+                    monitor2.setText("false The Dominant Seventh was just played. Now, move finger #5 down one semitone. Press forward to play the next chord.");
+                    third--;
+                    tonic=tonic-7;
+
+                }
+
+                chord2.setText(noteMap.get(tonic).name + " Dominant Seventh (V)");
                 buttonPressCounter++;
             } else if (buttonPressCounter == 3) {
                 arrowImageView3.setVisible(true);
-                monitor3.appendText("Major seventh");
-                chord3.setText(noteMap.get(tonic).name + " Major Seventh (I)");
                 playNoteCombination(third, seventh, tonic);
+                    monitor3.setText("This is the major Seventh, which is the tonic, or root. By convention, we play this chord twice before move to the next chord. " +
+                            "Pressing forward will play the chord again.");
+                chord3.setText(noteMap.get(tonic).name + " Major Seventh (I)");
                 buttonPressCounter++;
-
             } else if (buttonPressCounter % 4 == 0) {
                 // monitor3.appendText("Major seventh");
                 playNoteCombination(third, seventh, tonic);
+                if (option) {
+                    monitor3.setText("This is the major Seventh, which is the tonic, or root. By convention, we play this chord twice before move to the next chord. " +
+                            "To move to the next chord from this position, move fingers 1 and 5 away from each other by one semitone. That will restart our progression" +
+                            "on the minor seventh of the next key on the circle of fourths.");
+                    third--;
+                    seventh++;
+                    tonic=tonic-5;
+                    option=false;
+                } else {
+                    monitor3.setText("false This is the major Seventh, which is the tonic, or root. By convention, we play this chord twice before move to the next chord. " +
+                            "To move to the next chord from this position, move fingers 1 and 5 toward each other by one semitone. That will restart our progression" +
+                            "on the minor seventh of the next key on the circle of fourths.");
+                    third++;
+                    seventh--;
+                    tonic=tonic+7;
+                    option = true;
+                }
+
                 buttonPressCounter = 1;
                 //do nothing.
             }
@@ -274,7 +312,7 @@ public class App extends Application {
                 "We play across the circle of fourths, starting at C Major.\nThe first three chords are listed above in the three bars of sheet music. \nThe next root chord will be F, so the " +
                 "next progression will be\nGm7, C7, Fmaj7. When stepping through the trainer, it will play\nthe current root twice before moving to the next root.");
         introductionHeader.setText("Intoduction:");
-        fingeringNote.setText("For simplicities sake, use fingering\n1 and 5 in the right hand");
+        fingeringNote.setText("For simplicities sake, use fingering\n1 and 5 in the right hand.");
         fingeringNote.setFont(Font.font("Arial"));
         introductionHeader.setFont(Font.font("Arial", 30));
         introduction.setFont(Font.font("Arial"));
@@ -285,11 +323,11 @@ public class App extends Application {
         monitor1.setWrapText(true);
         monitor2.setWrapText(true);
         monitor3.setWrapText(true);
-        GridPane.setRowSpan(monitor1, 2);
+        GridPane.setRowSpan(monitor1, 4);
         GridPane.setColumnSpan(monitor1, 5);
-        GridPane.setRowSpan(monitor2, 2);
+        GridPane.setRowSpan(monitor2, 4);
         GridPane.setColumnSpan(monitor2, 5);
-        GridPane.setRowSpan(monitor3, 2);
+        GridPane.setRowSpan(monitor3, 4 );
         GridPane.setColumnSpan(monitor3, 5);
         monitor1.setEditable(false);
         monitor2.setEditable(false);
@@ -298,7 +336,7 @@ public class App extends Application {
         rstButton.setPrefWidth(80);
         fwdButton.setPrefWidth(80);
 
-       //    controllerPane.setGridLinesVisible(true);
+        //    controllerPane.setGridLinesVisible(true);
 
         //i is x axis i1 is Y axis  page.add(Node, colIndex, rowIndex, colSpan, rowSpan):
 
@@ -313,12 +351,12 @@ public class App extends Application {
         controllerPane.add(monitor2, 6, 3);
         controllerPane.add(monitor3, 6, 6);
 
-        arrowImageView1.setFitHeight(30);
-        arrowImageView1.setFitWidth(50);
-        arrowImageView2.setFitHeight(30);
-        arrowImageView2.setFitWidth(50);
-        arrowImageView3.setFitHeight(30);
-        arrowImageView3.setFitWidth(50);
+        arrowImageView1.setFitHeight(20);
+        arrowImageView1.setFitWidth(30);
+        arrowImageView2.setFitHeight(20);
+        arrowImageView2.setFitWidth(30);
+        arrowImageView3.setFitHeight(20);
+        arrowImageView3.setFitWidth(30);
         notesImageView.setFitWidth(250);
         notesImageView.setFitHeight(100);
         controllerPane.add(arrowImageView1, 5, 0);
@@ -327,8 +365,8 @@ public class App extends Application {
         controllerPane.add(handsImageView, 1, 4);
         controllerPane.add(notesImageView, 12, 6);
         controllerPane.add(introduction, 12, 1, 4, 6);
-        controllerPane.add(introductionHeader, 12, 0,2,1);
-        controllerPane.add(fingeringNote,1,9,2,2);
+        controllerPane.add(introductionHeader, 12, 0, 2, 1);
+        controllerPane.add(fingeringNote, 1, 9, 2, 2);
         GridPane.setHalignment(arrowImageView1, HPos.RIGHT);
         GridPane.setHalignment(arrowImageView2, HPos.RIGHT);
         GridPane.setHalignment(arrowImageView3, HPos.RIGHT);
