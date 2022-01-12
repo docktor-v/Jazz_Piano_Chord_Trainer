@@ -1,10 +1,18 @@
 # Jazz_Piano_Chord_Trainer
-This application uses logic created in Java to take control of a function MIDI keyboard. By following along with this tutorial using your own piano keyboard, you can learn how to  play the ii, V, I progressions for every key around the circle of fourths, without memorizing anything. 
+This JavaFX application takes control of a function MIDI keyboard and delivers training in Jazz chord progressions.
 
-After you learn the pattern, you'll be able to start at C major then work your way aroung the circle of fourths without any sheet music. You can use this for comping, improvising, or anything jazz related, as these chords make up the foundation of Jazz music.
+By following along with this tutorial using your own piano keyboard, you can learn how to  play the ii, V, I progressions in every key around the circle of fourths, without memorizing anything. 
 
-I created this after following along to a Jazz book and learning the progressions on my own. I realized it was taking so long, but I kept working at it until it finally clicked. I realized that if the pattern was taught early on, it would have saved me weeks and weeks of rout memorization. So, I wanted to save the next person the trouble.
+After you learn the patterns, you'll be able to start at C major then work your way aroung the circle of fourths without any sheet music. You can use this for comping, improvising, and playing along to many jazz standards, as these chords are foundational in Jazz music.
+
+I developed this app after attempting to learn these chords the hard way - rote memorizaion. It took a very long time. In fact, if I hadn't noticed the underlying pattern, I almost never would have just memorized the chords. The point with this app is to teach the pattern, and to save you the trouble of memorization.
 
 At first, you may want to follow along on page 14 of the book "Intro to Jazz Piano" by Mark Harrison.
 
-This project started with a tutorial by Almas Baimagambetov to build a piano synthesizer using javaFX (https://www.youtube.com/watch?v=4AVgeN202jw&ab_channel=BrianDesign)
+In this app, we focus on the right hand only. The left hand isn't too challenging to learn.
+
+This project started with a basic synthesizer tutorial by Almas Baimagambetov  (https://www.youtube.com/watch?v=4AVgeN202jw&ab_channel=BrianDesign). 
+ 
+Link to the circle of fifths/fourths: https://milnepublishing.geneseo.edu/fundamentals-function-form/chapter/10-the-circle-of-fifths-2/
+ 
+![Screenshot](https://user-images.githubusercontent.com/68287357/149046670-87642d5f-9a3f-45ff-bf26-a1c8ed07b0fc.jpg)
