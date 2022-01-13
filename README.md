@@ -24,6 +24,10 @@ If you only want to run the program as-is:
 3. Navigate to the folder where the .jar file is found.
 4. Enter "Java -jar Jazz_Chord_Trainer-1.0.jar" and the application should load.
 
+If you would rather clone the repository, just do so and follow these steps:
+1. Navigate to the "target" folder.
+2. Enter "Java -jar Jazz_Chord_Trainer-1.0.jar"
+
 You will need to have Java SDK 11 or earlier.
 Depencencies are set for Linux, Mac, and Windows. Only Windows has been tested.
 
