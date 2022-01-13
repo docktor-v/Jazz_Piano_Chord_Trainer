@@ -16,3 +16,15 @@ This project started with a basic synthesizer tutorial by Almas Baimagambetov  (
 Link to the circle of fifths/fourths: https://milnepublishing.geneseo.edu/fundamentals-function-form/chapter/10-the-circle-of-fifths-2/
  
 ![Screenshot](https://user-images.githubusercontent.com/68287357/149046670-87642d5f-9a3f-45ff-bf26-a1c8ed07b0fc.jpg)
+
+<b>Instructions on running</b>
+If you only want to run the program as-is:
+1. Copy the file "Jazz_Trainer_Package.zip" to a convenient folder on your PC.
+2. In Windows, open terminal
+3. Navigate to the folder where the .jar file is found.
+4. Enter "Java -jar Jazz_Chord_Trainer-1.0.jar" and the application should load.
+
+You will need to have Java SDK 11 or earlier.
+Depencencies are set for Linux, Mac, and Windows. Only Windows has been tested.
+
+Send me a message if you have any issues. David_Verzwyvelt@yahoo.com
